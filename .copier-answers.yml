@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier
+_commit: de089e0
+_src_path: gh:betaboon/copier-python
+author_email: riccardo.padoan@exb.de
+author_name: Riccardo Padoan
+copyright_holder: ExB Group
+copyright_license: MIT
+copyright_year: '2024'
+project_description: SDK for working with ExB (app.exb.de)
+project_name: exb-sdk
+python_console_script: false
+python_import_name: exb_sdk
+python_package_name: exb-sdk
+python_versions:
+- '3.9'
+- '3.10'
+- '3.11'
+- '3.12'
+repository_name: exb-sdk
+repository_namespace: ExB-Group
+repository_provider: github
