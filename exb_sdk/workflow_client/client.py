@@ -109,7 +109,7 @@ class Client:
         Raises:
             WaitForResultCancelledError: if the client gets closed while waiting for a result.
             DocumentProcessingError: if the extraction failed.
-            HTTPError: if any operation to upload or getting the result fails with an
+            HttpError: if any operation to upload or getting the result fails with an
                 unexpected error.
 
         Returns:
