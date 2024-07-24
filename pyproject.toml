@@ -6,13 +6,17 @@ build-backend = "pdm.backend"
 name = "exb-sdk"
 description = "SDK for working with ExB (app.exb.de)"
 readme = "README.md"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.11,<3.13"
 license = {text = "MIT"}
 authors = [
     {name = "Riccardo Padoan", email = "riccardo.padoan@exb.de"},
+    {name = "Lukas Jesche", email = "lukas.jesche@exb.de"},
+    {name = "Andreas Kohl", email = "andreas.kohl@exb.de"},
 ]
 maintainers = [
     {name = "Riccardo Padoan", email = "riccardo.padoan@exb.de"},
+    {name = "Lukas Jesche", email = "lukas.jesche@exb.de"},
+    {name = "Andreas Kohl", email = "andreas.kohl@exb.de"},
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -23,14 +27,16 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = []
+dependencies = [
+    "httpx>=0.27.0",
+    "loguru>=0.7.2",
+    "tenacity>=8.5.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/ExB-Group/exb-sdk"
@@ -57,6 +63,8 @@ linting = [
 testing = [
     "pytest-asyncio>=0.23.5",
     "pytest-cov>=4.1.0",
+    "pytest-httpx>=0.30.0",
+    "pytest-mock>=3.14.0",
     "pytest>=8.0.1",
 ]
 
@@ -79,11 +87,12 @@ exclude_commit_patterns = [
 ]
 
 [tool.mypy]
+python_executable = ".venv/bin/python"
 strict = true
-python_version = "3.9"
+python_version = "3.11"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 100
 preview = true
 
@@ -92,59 +101,25 @@ fixable = [
     "ALL",
 ]
 select = [
-    "A",     # flake8-builtins
-    "ANN",   # flake8-annotations
-    "ASYNC", # flake8-async
-    "B",     # flake8-bugbear
-    "BLE",   # flake8-blind-except
-    "C4",    # flake8-comprehensions
-    "C90",   # mccabe
-    "COM",   # flake8-commas
-    "D",     # pydocstyle
-    "DTZ",   # flake8-datetimez
-    "E",     # pycodestyle errors
-    "ERA",   # eradicate
-    "EXE",   # flake8-executable
-    "F",     # pyflakes
-    "FLY",   # flynt
-    "FURB",  # refurb
-    "I",     # isort
-    "ICN",   # flake8-import-conventions
-    "ISC",   # flake8-implicit-str-concat
-    "N",     # pep8-naming
-    "NPY",   # numpy
-    "PD",    # pandas-vet
-    "PERF",  # perflint
-    "PIE",   # flake8-pie
-    "PLC",   # pylint - convention
-    "PLE",   # pylint - error
-    "PLW",   # pylint - warning
-    "PT",    # flake8-pytest-style
-    "PTH",   # flake8-use-pathlib
-    "Q",     # flake8-quotes
-    "RET",   # flake8-return
-    "RUF",   # Ruff-specific rules
-    "S",     # flake8-bandit
-    "SIM",   # flake8-simplify
-    "T10",   # flake8-debugger
-    "T20",   # flake8-print
-    "TCH",   # flake8-type-checking
-    "TID",   # flake8-tidy-imports
-    "TRY",   # tryceratops
-    "UP",    # pyupgrade
-    "W",     # pycodestyle - warning
-    "YTT",   # flake8-2020
+    "ALL",
 ]
 ignore = [
     "ANN101", # flake8-annotations - missing-type-self - deprecated
     "ANN102", # flake8-annotations - missing-type-cls - deprecated
+    "CPY001", # flake8-copyright - missing-copyright-notice
     "D100",   # pydocstyle - undocumented-public-module
     "D104",   # pydocstyle - undocumented-public-package
+    "D105",   # pydocstyle - undocumented-magic-methods
     "PT004",  # flake8-pytest-style - pytest-missing-fixture-name-underscore - see: https://github.com/astral-sh/ruff/issues/8796
     "PT005",  # flake8-pytest-style - pytest-incorrect-fixture-name-underscore - see: https://github.com/astral-sh/ruff/issues/8796
+    "TD002",  # flake8-todos - missing-todo-author
+    "TD003",  # flake8-todos - missing-todo-link
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"docs/**/*" = [
+    "INP001", # flake8-no-pep420 - implicit-namespace-package
+]
 "tests/**/*" = [
     "C901", # mccabe - complex-structure
     "D",    # pydocstyle

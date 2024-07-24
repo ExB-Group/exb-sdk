@@ -22,7 +22,6 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        language: system
         args:
           - --strict
   - repo: https://github.com/jorisroovers/gitlint
