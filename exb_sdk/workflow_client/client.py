@@ -18,7 +18,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from exb_sdk.workflow_client.api_constants import (
+from exb_sdk.workflow_client._api_constants import (
     ENDPOINT_DOWNLOAD,
     ENDPOINT_STATE_POLL,
     ENDPOINT_UPLOAD,

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from exb_sdk.workflow_client import Client
-from exb_sdk.workflow_client.api_constants import DocumentState
+from exb_sdk.workflow_client._api_constants import DocumentState  # noqa: PLC2701
 from exb_sdk.workflow_client.exceptions import DocumentProcessingError, WaitForResultCancelledError
 from tests.workflow_client.conftest import Context, response_result, response_state, response_upload
 
