@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from exb_sdk.workflow_client import Result
-from exb_sdk.workflow_client.api_constants import DocumentState
+from exb_sdk.workflow_client._api_constants import DocumentState
 
 
 @pytest.fixture
