@@ -4,8 +4,15 @@ from httpx import Response
 class DocumentProcessingError(Exception):
     """Raised when an error occurs during an extraction."""
 
+    def __init__(self, message: str = "Error processing document") -> None:  # noqa: D107
+        super().__init__(message)
+
+
+class DocumentProcessingTimeoutError(Exception):
+    """Raised when an error occurs during an extraction."""
+
     def __init__(self) -> None:  # noqa: D107
-        message = "Error processing document"
+        message = "Error processing document due to timeout"
         super().__init__(message)
 
 

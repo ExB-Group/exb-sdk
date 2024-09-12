@@ -4,10 +4,15 @@ import asyncio
 from typing import TYPE_CHECKING
 
 import pytest
+from httpx import Request, Response
 
 from exb_sdk.workflow_client import Client
 from exb_sdk.workflow_client.api_constants import DocumentState
-from exb_sdk.workflow_client.exceptions import DocumentProcessingError, WaitForResultCancelledError
+from exb_sdk.workflow_client.exceptions import (
+    DocumentProcessingError,
+    DocumentProcessingTimeoutError,
+    WaitForResultCancelledError,
+)
 from tests.workflow_client.conftest import Context, response_result, response_state, response_upload
 
 if TYPE_CHECKING:
@@ -85,6 +90,34 @@ async def test_error_in_processing(
     async with client:
         # assert
         with pytest.raises(DocumentProcessingError, match="Error processing document"):
+            # act
+            await client.get_result(document_path=document_path)
+
+
+async def test_timeout_in_processing(
+    ctx: Context,
+    client: Client,
+    document_path: Path,
+    httpx_mock: HTTPXMock,
+) -> None:
+    async def simulate_network_latency(_: Request) -> Response:
+        await asyncio.sleep(2)
+        return Response(
+            status_code=200,
+            json={"state": str(DocumentState.QUEUED_FOR_PROCESSING)},
+        )
+
+    # arrange
+    client.precessing_timeout_seconds = 1
+
+    httpx_mock.add_response(**response_upload(ctx=ctx))
+    httpx_mock.add_callback(simulate_network_latency)
+
+    async with client:
+        # assert
+        with pytest.raises(
+            DocumentProcessingTimeoutError, match="Error processing document due to timeout"
+        ):
             # act
             await client.get_result(document_path=document_path)
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Self
 from uuid import UUID
@@ -26,6 +27,7 @@ from exb_sdk.workflow_client.api_constants import (
 )
 from exb_sdk.workflow_client.exceptions import (
     DocumentProcessingError,
+    DocumentProcessingTimeoutError,
     HttpError,
     WaitForResultCancelledError,
 )
@@ -61,6 +63,9 @@ class Client:
         dev_mode: When enabled allows to cache file upload and faster result polling. Useful
             during development when extracting results of the same file multiple times.
             Do not use when running this in production! Defaults to False.
+        precessing_timeout_seconds: The timeout in seconds for document processing.
+            For cases when the document faíled due internal reasons within the processing and
+            the error is not recoverable. Defaults to 30 minutes.
     """
 
     base_url: str
@@ -68,6 +73,7 @@ class Client:
     solution_id: UUID
     token: str
     dev_mode: bool = False
+    precessing_timeout_seconds: int = 30 * 60
 
     _http_client: AsyncClient = field(init=False)
     _poll_interval: float = field(init=False)
@@ -109,6 +115,7 @@ class Client:
         Raises:
             WaitForResultCancelledError: if the client gets closed while waiting for a result.
             DocumentProcessingError: if the extraction failed.
+            DocumentProcessingTimeoutError: if the extraction was not processed in time.
             HTTPError: if any operation to upload or getting the result fails with an
                 unexpected error.
 
@@ -119,6 +126,7 @@ class Client:
         document_id = await self._upload_document(document_path=document_path)
 
         # Poll for result
+        start_time = time.time()
         while True:
             await asyncio.sleep(self._poll_interval)
             if self._closing:
@@ -130,6 +138,18 @@ class Client:
 
             if state == DocumentState.PROCESSING_ERROR:
                 raise DocumentProcessingError
+
+            # in cases where the document was not processed in time
+            elapsed_time = time.time() - start_time
+            if elapsed_time > self.precessing_timeout_seconds:
+                # the processing failed (crash loops)
+                # and the state never set to DOCUMENT_PROCESSED or PROCESSING_ERROR
+                logger.error(
+                    f"Document processing failed due to timeout"
+                    f" ({self.precessing_timeout_seconds}s)"
+                    f" after {int(elapsed_time)} seconds.",
+                )
+                raise DocumentProcessingTimeoutError
 
         # Get result and return it
         return await self._download_result(document_id)
